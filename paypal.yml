@@ -1,0 +1,27 @@
+setup:
+  baseUrl: https://www.paypal.com
+  continueOnError: false
+  browserConfig:
+    headless: true
+    execPath: "/usr/bin/chromium"
+    noSandbox: true
+actions:
+  - name: "fundraiser"
+    navigate: "{{ PAYPAL_URL }}"
+    elementActions:
+      - name: "for"
+        captureOutput: true
+        element:
+          selector: //h1/text()
+      - name: "totalAmount"
+        captureOutput: true
+        element:
+          selector: //progress/@max
+      - name: "currentAmount"
+        captureOutput: true
+        element:
+          selector: //progress/@value
+      - name: "daysRemaining"
+        captureOutput: true
+        element:
+          selector: //progress/../../../div/following-sibling::div[1]/div[2]/descendant::*/text()

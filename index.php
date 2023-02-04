@@ -1,38 +1,17 @@
 <?php
 
-$url = getenv('PAYPAL_URL');
+$url = 'https://paypal.com' . getenv('PAYPAL_URL');
 $file = getenv('PAYPAL_FILE');
 $webhook = getenv('SLACK_WEBHOOK');
 
-$dom = new DOMDocument;
-libxml_use_internal_errors(true);
-$dom->loadHTMLFile($file);
+$file = json_decode(file_get_contents($file), true);
 
-$ele = $dom->getElementsByTagName('title');
-
-$for = trim($ele[0]->textContent);
-
-$ele = $dom->getElementsByTagName('progress');
-
-$currentAmount = null;
-$totalAmount = null;
-foreach ($ele[0]->attributes as $attribute)
-{
-	if ($attribute->name === 'max')
-	{
-		$totalAmount = $attribute->value;
-	}
-
-	if ($attribute->name === 'value')
-	{
-		$currentAmount = $attribute->value;
-	}
-}
+$for = $file['fundraiser']['actions']['for']['output'][0];
+$totalAmount = $file['fundraiser']['actions']['totalAmount']['output'][0];
+$currentAmount = $file['fundraiser']['actions']['currentAmount']['output'][0];
+$daysRemaining = rtrim($file['fundraiser']['actions']['daysRemaining']['output'][0]);
 
 $percentage = round($currentAmount / $totalAmount * 100);
-
-$daysRemaining = $ele[0]->parentNode->parentNode->nextSibling->childNodes[1]->textContent;
-$daysRemaining = str_replace('dagen', 'days', $daysRemaining);
 
 $targetMessage = '';
 if ($percentage >= 100)
@@ -43,7 +22,7 @@ if ($percentage >= 100)
 $slackMessage = [
 	'username' => 'PayPal Fundraiser',
 	'icon_emoji' => ':gift:',
-	'text' => "Fundraiser for *'$for'*, has raised *£$currentAmount* out of *£$totalAmount*, *$percentage%* total! The fundraiser has *$daysRemaining left*.$targetMessage\n\n<$url>",
+	'text' => "Fundraiser for *'$for'*, has raised *£$currentAmount* out of *£$totalAmount*, *$percentage%* total! The fundraiser has *$daysRemaining days left*.$targetMessage\n\n<$url>",
 ];
 
 echo json_encode($slackMessage);

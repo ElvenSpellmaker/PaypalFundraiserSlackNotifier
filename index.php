@@ -19,10 +19,14 @@ if ($percentage >= 100)
 	$targetMessage = "\n\nTarget reached, nice one! :tada:";
 }
 
+$days = $daysRemaining === 1
+	? 'day'
+	: 'days';
+
 $slackMessage = [
 	'username' => 'PayPal Fundraiser',
 	'icon_emoji' => ':gift:',
-	'text' => "Fundraiser for *'$for'*, has raised *£$currentAmount* out of *£$totalAmount*, *$percentage%* total! The fundraiser has *$daysRemaining days left*.$targetMessage\n\n<$url>",
+	'text' => "Fundraiser for *'$for'*, has raised *£$currentAmount* out of *£$totalAmount*, *$percentage%* total! The fundraiser has *$daysRemaining $days left*.$targetMessage\n\n<$url>",
 ];
 
 echo json_encode($slackMessage);
